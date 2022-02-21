@@ -14,3 +14,7 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+/*
+body , body *,{background-color:#232323!important;color:white!important;border-color:#333!important;box-shadow:unset!important}
+*/

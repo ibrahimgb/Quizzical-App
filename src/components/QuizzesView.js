@@ -4,12 +4,13 @@ export default function QuizzesView() {
     const [evaluating, setIsEvaluating] = React.useState(true);
 
     const [quizzes, fetchQuizzes] = React.useState([]);
+    const [userAnswers, setUserAnswers] = React.useState([]);
 
     const getData = () => {
         fetch("https://opentdb.com/api.php?amount=5&encode=base64")
             .then((res) => res.json())
             .then((res) => {
-                console.log(res);
+                //console.log(res);
                 fetchQuizzes(res.results);
             });
     };
@@ -26,19 +27,84 @@ export default function QuizzesView() {
             [array[i], array[j]] = [array[j], array[i]];
         }
     }
+
+    function fillUserAnswersList() {
+        let list = [];
+        for (let i = 0; i < quizzes.length; i++) {
+            let subList = [];
+            /*
+            if (quizzes[i].correct_answer.length == 1) {
+                subList.push({
+                    content: quizzes[i].correct_answer,
+                    state: false,
+                });
+            } else {
+                for (let j = 0; j < quizzes[i].correct_answer.length; j++) {
+                    subList.push({
+                        content: quizzes[i].correct_answer[j],
+                        state: false,
+                    });
+                }
+            }
+            
+            if (quizzes[i].incorrect_answers.length == 1) {
+                subList.push({
+                    content: quizzes[i].correct_answer,
+                    state: false,
+                });
+            } else {
+                for (let j = 0; j < quizzes[i].incorrect_answers.length; j++) {
+                    subList.push({
+                        content: quizzes[i].incorrect_answers[j],
+                        state: false,
+                    });
+                }
+            }*/
+
+            /////
+
+            list.push(
+                [].concat(
+                    { answer: quizzes[i].correct_answer, selected: false },
+                    quizzes[i].incorrect_answers.map((answer) => {
+                        return { answer: answer, selected: false };
+                    })
+                )
+            );
+
+            /////
+            //list[i] = subList;
+            //console.log("subList ...");
+            //console.log(subList);
+        }
+        //console.log("list ...");
+
+        setUserAnswers((answers) => {
+            return list;
+        });
+        console.log(userAnswers);
+    }
     //atob();
     function randomAnswers(list, indexElem) {
-        console.log("generationg randem");
-        console.log(list);
+        //console.log("generationg randem");
+        //console.log(list);
         let randList = list;
         shuffle(randList);
-        console.log("the randemise anser");
-        console.log(randList);
+        //console.log("the randemise anser");
+        //console.log(randList);
+
         const randListe = randList.map((item, index) => {
             return (
                 <div
-                    className="answer"
-                    onclick={toggleSelectedElement(indexElem, index)}
+                    key={index}
+                    className={
+                        userAnswers[indexElem][index].selected
+                            ? "answer selected"
+                            : "answer"
+                    }
+                    onClick={() => {
+                        toggleSelectedElement(indexElem, index);
+                    }}
                 >
                     {atob(item)}
                 </div>
@@ -46,14 +112,24 @@ export default function QuizzesView() {
         });
         return randListe;
     }
-    function toggleSelectedElement(indexElem, index) {}
+    function toggleSelectedElement(indexElem, index) {
+        setUserAnswers((answers) => {
+            let changed = answers;
+            changed[indexElem][index].selected =
+                !changed[indexElem][index].selected;
+            return changed;
+        });
+        console.log("clicked");
+    }
     function checkAnswers() {}
 
     React.useEffect(() => {
         getData();
+        fillUserAnswersList();
+        console.log("done!");
     }, []);
 
-    console.log(quizzes);
+    //console.log(quizzes);
 
     const quizzesList = quizzes.map((quizze, index) => {
         return (
